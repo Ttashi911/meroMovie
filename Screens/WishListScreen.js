@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, Dimensions, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { collection, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
+import { getAuth } from 'firebase/auth';
 
 const { width } = Dimensions.get('window');
 
@@ -9,10 +10,12 @@ const WishlistScreen = () => {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const auth = getAuth();
+  const userId = auth.currentUser.uid; // Get current user ID
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      collection(db, 'wishlist'),
+      collection(db, 'users', userId, 'wishlist'),
       (querySnapshot) => {
         const wishlistList = [];
         querySnapshot.forEach((doc) => {
@@ -30,7 +33,7 @@ const WishlistScreen = () => {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [userId]);
 
   const removeFromWishlist = async (movieId) => {
     Alert.alert(
@@ -45,8 +48,7 @@ const WishlistScreen = () => {
           text: 'OK',
           onPress: async () => {
             try {
-              // Use the movie ID as the document ID
-              const docRef = doc(db, 'wishlist', movieId);
+              const docRef = doc(db, 'users', userId, 'wishlist', movieId);
               await deleteDoc(docRef);
               setWishlist((prevWishlist) => prevWishlist.filter((movie) => movie.id !== movieId));
               Alert.alert('Removed from Wishlist', 'The movie has been removed from your wishlist.');
@@ -60,7 +62,6 @@ const WishlistScreen = () => {
       { cancelable: true }
     );
   };
-  
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
@@ -82,7 +83,7 @@ const WishlistScreen = () => {
         renderItem={({ item }) => (
           <View style={styles.movieItem}>
             <Image
-              source={{ uri: item.imageURL }}
+              source={{ uri: item.imageURL || 'https://via.placeholder.com/150' }}
               style={styles.image}
               resizeMode="cover"
             />
@@ -90,19 +91,11 @@ const WishlistScreen = () => {
               <Text style={styles.title}>{item.movieName || 'No Title'}</Text>
               <Text style={styles.detailText}>
                 <Text style={styles.label}>Release Date: </Text>
-                {item.releaseDate !== undefined ? item.releaseDate : 'N/A'}
+                {item.releaseDate || 'N/A'}
               </Text>
               <Text style={styles.detailText}>
                 <Text style={styles.label}>Genre: </Text>
                 {item.genre || 'No Genre'}
-              </Text>
-              <Text style={styles.detailText}>
-                <Text style={styles.label}>Director: </Text>
-                {item.director || 'No Director'}
-              </Text>
-              <Text style={styles.detailText}>
-                <Text style={styles.label}>Description: </Text>
-                {item.movieDescription || 'No Description'}
               </Text>
               <Text style={styles.detailText}>
                 <Text style={styles.label}>IMDb Rating: </Text>
@@ -136,7 +129,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   movieItem: {
-    flexDirection: 'column',
+    flexDirection: 'row',
     padding: 10,
     marginBottom: 10,
     backgroundColor: '#fff',
@@ -150,21 +143,19 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   image: {
-    width: '100%',
-    height: (width - 32) * 9 / 16,
+    width: '40%', // Set width to 45% of the container
+    height: ((width - 32) * 0.45 * 9 / 16) * 1.5, // Slightly increase the height to make the image larger
     borderRadius: 8,
-    marginBottom: 10,
+    marginRight: 10,
   },
   movieDetails: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 10,
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
-    textAlign: 'center',
   },
   detailText: {
     fontSize: 14,
@@ -175,14 +166,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginTop: 10,
-    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 4,
+    backgroundColor: '#E35335',
+    alignItems: 'center',
   },
   buttonText: {
     fontSize: 16,
-    color: 'red',
+    color: '#fff',
   },
 });
 

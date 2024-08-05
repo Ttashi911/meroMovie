@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, FlatList, Image, ActivityIndicator, Dimensions, TouchableOpacity, Alert } from 'react-native';
-import { collection, doc, getDocs, addDoc, setDoc, query, where } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc, query, where } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { MaterialIcons } from '@expo/vector-icons';
+import { getAuth } from 'firebase/auth';
 
 const { width } = Dimensions.get('window');
 
@@ -10,6 +11,8 @@ const HomeScreen = ({ navigation }) => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const auth = getAuth();
+  const userId = auth.currentUser.uid; // Get current user ID
 
   const fetchMovies = async () => {
     try {
@@ -38,12 +41,12 @@ const HomeScreen = ({ navigation }) => {
 
   const checkIfMovieExists = async (movieId) => {
     try {
-      const wishlistQuery = query(collection(db, 'wishlist'), where('id', '==', movieId));
+      const wishlistQuery = query(collection(db, 'users', userId, 'wishlist'), where('id', '==', movieId));
       const querySnapshot = await getDocs(wishlistQuery);
-      return !querySnapshot.empty; // If empty, the movie does not exist in the wishlist
+      return !querySnapshot.empty; // If not empty, the movie exists in the wishlist
     } catch (error) {
       console.error('Error checking wishlist: ', error);
-      return false;
+      return false; // Assume the movie does not exist if there's an error
     }
   };
 
@@ -59,19 +62,24 @@ const HomeScreen = ({ navigation }) => {
         {
           text: 'OK',
           onPress: async () => {
+            // Check if the movie is already in the wishlist
             const movieExists = await checkIfMovieExists(movie.id);
-  
+
             if (movieExists) {
               Alert.alert('Already in Wishlist', 'This movie is already in your wishlist.');
-              return;
+              return; // Exit the function if the movie is already in the wishlist
             }
-  
+
             try {
-              // Use the movie ID as the document ID
-              await setDoc(doc(db, 'wishlist', movie.id), {
-                ...movie,
-                id: movie.id, // Ensure the ID is stored
-              });
+              // Store the movie data in the wishlist
+              const movieData = {
+                movieName: movie.movieName || 'No Title',
+                genre: movie.genre || 'No Genre',
+                rating: movie.rating !== undefined ? movie.rating : 'N/A',
+                releaseDate: movie.releaseDate || 'N/A',
+                imageURL: movie.imageURL || 'https://via.placeholder.com/150',
+              };
+              await setDoc(doc(db, 'users', userId, 'wishlist', movie.id), movieData);
               Alert.alert('Added to Wishlist', 'The movie has been added to your wishlist.');
             } catch (error) {
               console.error('Error adding to wishlist: ', error);
@@ -82,7 +90,7 @@ const HomeScreen = ({ navigation }) => {
       ],
       { cancelable: true }
     );
-  };  
+  };
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
@@ -104,7 +112,7 @@ const HomeScreen = ({ navigation }) => {
         renderItem={({ item }) => (
           <View style={styles.movieItem}>
             <Image
-              source={{ uri: item.imageURL }}
+              source={{ uri: item.imageURL || 'https://via.placeholder.com/150' }}
               style={styles.image}
               resizeMode="cover"
             />
@@ -112,7 +120,7 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.title}>{item.movieName || 'No Title'}</Text>
               <Text style={styles.detailText}>
                 <Text style={styles.label}>Release Date: </Text>
-                {item.releaseDate !== undefined ? item.releaseDate : 'N/A'}
+                {item.releaseDate || 'N/A'}
               </Text>
               <Text style={styles.detailText}>
                 <Text style={styles.label}>Genre: </Text>

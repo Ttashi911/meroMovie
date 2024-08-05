@@ -1,6 +1,6 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
-import AppNavigator from './Navigation/AppNavigator'; // Adjust the path if necessary
+import AppNavigator from './Navigation/AppNavigator';
 
 const App = () => {
   return (
