@@ -2,21 +2,27 @@ import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Text, Alert } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
+
 
 const SignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [name, setName] = useState('');
+  const [number, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleSignup = () => {
-    setError(''); 
-
+  const handleSignup = async () => {
+    setError('');
+  
     if (!email.trim()) {
       setError('Please enter your email address.');
       return;
@@ -25,7 +31,7 @@ const SignupScreen = ({ navigation }) => {
       setError('Please enter a valid email address.');
       return;
     }
-
+  
     if (!password.trim()) {
       setError('Please enter your password.');
       return;
@@ -34,49 +40,82 @@ const SignupScreen = ({ navigation }) => {
       setError('Password must be at least 6 characters long.');
       return;
     }
-
+  
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
-
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(userCredential => {
-        Alert.alert(
-          'Sign Up Successful',
-          'Your account has been created successfully.',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                navigation.goBack();
-              },
-            },
-          ]
-        );
-      })
-      .catch(error => {
-        switch (error.code) {
-          case 'auth/email-already-in-use':
-            setError('This email address is already registered.');
-            break;
-          case 'auth/invalid-email':
-            setError('The email address is not valid.');
-            break;
-          case 'auth/weak-password':
-            setError('The password is too weak. It should be at least 6 characters long.');
-            break;
-          default:
-            setError('Sign Up Error: ' + error.message);
-            break;
-        }
+  
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+  
+      // Save user data to Firestore
+      const firestore = getFirestore();
+      await setDoc(doc(firestore, 'users', user.uid), {
+        email: user.email,
+        uid: user.uid,
+        name: name,
+        number: number,
+        address: address
       });
+  
+      Alert.alert(
+        'Sign Up Successful',
+        'Your account has been created successfully.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              navigation.goBack();
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          setError('This email address is already registered.');
+          break;
+        case 'auth/invalid-email':
+          setError('The email address is not valid.');
+          break;
+        case 'auth/weak-password':
+          setError('The password is too weak. It should be at least 6 characters long.');
+          break;
+        default:
+          setError('Sign Up Error: ' + error.message);
+          break;
+      }
+    }
   };
+  
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.heading}>meroMovies</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Full Name"
+          value={name}
+          onChangeText={setName}
+          autoCapitalize="none" 
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Phone Number"
+          value={number}
+          onChangeText={setPhone}
+          autoCapitalize="none" 
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Address"
+          value={address}
+          onChangeText={setAddress}
+          autoCapitalize="none" 
+        />
         <TextInput
           style={styles.input}
           placeholder="Email"

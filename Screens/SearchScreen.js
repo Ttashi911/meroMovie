@@ -69,43 +69,53 @@ const SearchScreen = () => {
       </View>
       {loading && <ActivityIndicator size="large" color="#0000ff" />}
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      <FlatList
-        data={movies}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.movieItem}>
-            {item.poster_path ? (
-              <Image
-                source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
-                style={styles.poster}
-              />
-            ) : (
-              <View style={styles.noPoster}>
-                <Text>No Image</Text>
+      {searchQuery === '' && movies.length === 0 ? (
+        <View style={styles.placeholderContainer}>
+          <Image
+            source={require('../assets/search.png')}
+            style={styles.placeholderImage}
+          />
+          <Text style={styles.placeholderText}>Search for a movie</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={movies}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.movieItem}>
+              {item.poster_path ? (
+                <Image
+                  source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
+                  style={styles.poster}
+                />
+              ) : (
+                <View style={styles.noPoster}>
+                  <Text>No Image</Text>
+                </View>
+              )}
+              <View style={styles.movieDetails}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text>
+                  <Text style={styles.boldLabel}>Release Year: </Text>
+                  {item.release_date ? item.release_date.split('-')[0] : 'N/A'}
+                </Text>
+                <Text>
+                  <Text style={styles.boldLabel}>Overview: </Text>
+                  {item.overview || 'N/A'}
+                </Text>
+                <Text>
+                  <Text style={styles.boldLabel}>Rating: </Text>
+                  {item.vote_average || 'N/A'}
+                </Text>
+                <Text>
+                  <Text style={styles.boldLabel}>Country: </Text>
+                  {item.production_countries.map((country) => country.name).join(', ') || 'N/A'}
+                </Text>
               </View>
-            )}
-            <View style={styles.movieDetails}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text>
-                <Text style={styles.boldLabel}>Release Year: </Text>
-                {item.release_date ? item.release_date.split('-')[0] : 'N/A'}
-              </Text>
-              <Text>
-                <Text style={styles.boldLabel}>Overview: </Text>
-                {item.overview || 'N/A'}
-              </Text>
-              <Text>
-                <Text style={styles.boldLabel}>Rating: </Text>
-                {item.vote_average || 'N/A'}
-              </Text>
-              <Text>
-                <Text style={styles.boldLabel}>Country: </Text>
-                {item.production_countries.map((country) => country.name).join(', ') || 'N/A'}
-              </Text>
             </View>
-          </View>
-        )}
-      />
+          )}
+        />
+      )}
     </View>
   );
 };
@@ -153,6 +163,20 @@ const styles = StyleSheet.create({
   error: {
     color: 'red',
     marginBottom: 12,
+  },
+  placeholderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderImage: {
+    width: 100, // Adjust width as needed
+    height: 100, // Adjust height as needed
+    marginBottom: 20,
+  },
+  placeholderText: {
+    fontSize: 18,
+    color: '#333',
   },
   movieItem: {
     flexDirection: 'row',
