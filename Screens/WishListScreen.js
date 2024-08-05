@@ -6,14 +6,36 @@ import { getAuth } from 'firebase/auth';
 
 const { width } = Dimensions.get('window');
 
-const WishlistScreen = () => {
+const WishlistScreen = ({ navigation }) => {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const auth = getAuth();
-  const userId = auth.currentUser.uid; // Get current user ID
+  const user = auth.currentUser; // Get current user
 
   useEffect(() => {
+    // This effect ensures that we handle user authentication status
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      if (!currentUser) {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Auth' }],
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [auth, navigation]);
+
+  useEffect(() => {
+    if (!user) {
+      // If no user is authenticated, redirect to Auth screen
+      setLoading(false);
+      setError('You need to be logged in to view your wishlist.');
+      return;
+    }
+
+    const userId = user.uid;
     const unsubscribe = onSnapshot(
       collection(db, 'users', userId, 'wishlist'),
       (querySnapshot) => {
@@ -33,9 +55,11 @@ const WishlistScreen = () => {
     );
 
     return () => unsubscribe();
-  }, [userId]);
+  }, [user, navigation]);
 
   const removeFromWishlist = async (movieId) => {
+    if (!user) return;
+    const userId = user.uid;
     Alert.alert(
       'Confirm',
       'Are you sure you want to remove this movie from your wishlist?',
@@ -143,8 +167,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   image: {
-    width: '40%', // Set width to 45% of the container
-    height: ((width - 32) * 0.45 * 9 / 16) * 1.5, // Slightly increase the height to make the image larger
+    width: '40%',
+    height: ((width - 32) * 0.45 * 9 / 16) * 1.5,
     borderRadius: 8,
     marginRight: 10,
   },
