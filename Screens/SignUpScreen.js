@@ -1,6 +1,5 @@
-// SignupScreen.js
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Text, Alert } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig'; // Adjust path if necessary
 
@@ -10,17 +9,75 @@ const SignupScreen = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
+  const validateEmail = (email) => {
+    // Simple email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSignup = () => {
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
+    setError(''); // Clear previous errors
+
+    // Validate email
+    if (!email.trim()) {
+      setError('Please enter your email address.');
+      return;
+    }
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address.');
       return;
     }
 
+    // Validate password
+    if (!password.trim()) {
+      setError('Please enter your password.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    // Confirm password
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    // Create user
     createUserWithEmailAndPassword(auth, email, password)
       .then(userCredential => {
-        navigation.navigate('Home');
+        Alert.alert(
+          'Sign Up Successful',
+          'Your account has been created successfully.',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                // Optionally, navigate to another screen or take other actions
+                navigation.goBack();
+              },
+            },
+          ]
+        );
       })
-      .catch(error => setError(error.message));
+      .catch(error => {
+        // Handle errors such as email already in use
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            setError('This email address is already registered.');
+            break;
+          case 'auth/invalid-email':
+            setError('The email address is not valid.');
+            break;
+          case 'auth/weak-password':
+            setError('The password is too weak. It should be at least 6 characters long.');
+            break;
+          default:
+            setError('Sign Up Error: ' + error.message);
+            break;
+        }
+      });
   };
 
   return (
@@ -32,6 +89,8 @@ const SignupScreen = ({ navigation }) => {
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none" // Disable automatic capitalization
+          keyboardType="email-address" // Optional: Set the keyboard to email type
         />
         <TextInput
           style={styles.input}
@@ -39,6 +98,7 @@ const SignupScreen = ({ navigation }) => {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          autoCapitalize="none" // Ensure no capitalization
         />
         <TextInput
           style={styles.input}
@@ -46,15 +106,16 @@ const SignupScreen = ({ navigation }) => {
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
+          autoCapitalize="none" // Ensure no capitalization
         />
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <View style={styles.buttonContainer}>
-          <View style={styles.buttonWrapper}>
-            <Button title="Back to Sign In" onPress={() => navigation.goBack()} />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <Button title="Sign Up" onPress={handleSignup} />
-          </View>
+          <TouchableOpacity style={[styles.button, styles.signupButton]} onPress={handleSignup}>
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.signInButton]} onPress={() => navigation.goBack()}>
+            <Text style={styles.buttonText}>Back to Sign In</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -64,43 +125,62 @@ const SignupScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center', // Center the content vertically
+    justifyContent: 'center',
     padding: 16,
+    backgroundColor: '#F5F5F5', // Light background color for better contrast
   },
   content: {
     flex: 1,
-    justifyContent: 'center', // Center content vertically
-    alignItems: 'center', // Center content horizontally
-    width: '100%', // Ensure content takes full width for better centering
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
   heading: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#333', // Dark color for better readability
-    marginBottom: 24, // Space between heading and input fields
-    textAlign: 'center', // Center align heading
+    color: '#333',
+    marginBottom: 24,
+    textAlign: 'center',
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
+    height: 45,
+    borderColor: '#ddd',
     borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 8,
-    width: '100%', // Make inputs full width of the container
+    marginBottom: 16,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    width: '100%',
+    backgroundColor: '#fff',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%', // Ensure buttons take full width for spacing
+    width: '100%',
     marginTop: 16,
   },
-  buttonWrapper: {
+  button: {
+    backgroundColor: '#E35335',
+    borderRadius: 5,
+    paddingVertical: 12,
     flex: 1,
-    marginHorizontal: 4, // Adjust spacing between buttons if needed
+    marginHorizontal: 5,
+    alignItems: 'center',
+  },
+  signInButton: {
+    marginRight: 5,
+  },
+  signupButton: {
+    marginLeft: 5,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   error: {
     color: 'red',
-    marginBottom: 12,
+    marginBottom: 16,
+    fontSize: 14,
   },
 });
 

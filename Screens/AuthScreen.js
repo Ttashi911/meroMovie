@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -13,13 +13,43 @@ const AuthScreen = ({ navigation }) => {
   };
 
   const handleLogin = () => {
+    // Clear previous errors
+    setError('');
+
+    // Validate fields
+    if (!email.trim()) {
+      setError('Please enter your email address.');
+      return;
+    }
+    if (!password.trim()) {
+      setError('Please enter your password.');
+      return;
+    }
+
+    // Attempt to sign in
     signInWithEmailAndPassword(auth, email, password)
       .then(userCredential => {
-        navigation.navigate('Main', {
-          screen: 'Home',
-        });
+        navigation.navigate('Main', { screen: 'Home' });
       })
-      .catch(error => setError(error.message));
+      .catch(error => {
+        switch (error.code) {
+          case 'auth/invalid-email':
+            setError('The email address is not valid.');
+            break;
+          case 'auth/user-not-found':
+            setError('No user found with this email.');
+            break;
+          case 'auth/wrong-password':
+            setError('Incorrect password.');
+            break;
+          case 'auth/invalid-credential':
+            setError('Email or password is incorrect.');
+            break;
+          default:
+            setError('Sign In Error: ' + error.message);
+            break;
+        }
+      });
   };
 
   return (
@@ -31,6 +61,8 @@ const AuthScreen = ({ navigation }) => {
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
         />
         <TextInput
           style={styles.input}
@@ -38,15 +70,16 @@ const AuthScreen = ({ navigation }) => {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          autoCapitalize="none"
         />
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <View style={styles.buttonContainer}>
-          <View style={styles.buttonWrapper}>
-            <Button title="Login" onPress={handleLogin} />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <Button title="Sign Up" onPress={handleSignup} />
-          </View>
+          <TouchableOpacity style={[styles.button, styles.loginButton]} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.signupButton]} onPress={handleSignup}>
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -58,6 +91,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 16,
+    backgroundColor: '#F5F5F5', // Light background color
   },
   content: {
     flex: 1,
@@ -66,19 +100,21 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   heading: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 24,
     textAlign: 'center',
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
+    height: 45,
+    borderColor: '#ddd',
     borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 8,
+    marginBottom: 16,
+    paddingHorizontal: 12,
+    borderRadius: 5,
     width: '100%',
+    backgroundColor: '#fff',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -86,13 +122,29 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 16,
   },
-  buttonWrapper: {
+  button: {
+    backgroundColor: '#E35335',
+    borderRadius: 5,
+    paddingVertical: 12,
     flex: 1,
-    marginHorizontal: 4,
+    marginHorizontal: 5,
+    alignItems: 'center',
+  },
+  loginButton: {
+    marginRight: 5,
+  },
+  signupButton: {
+    marginLeft: 5,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   error: {
     color: 'red',
-    marginBottom: 12,
+    marginBottom: 16,
+    fontSize: 14,
   },
 });
 
