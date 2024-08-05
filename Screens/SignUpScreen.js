@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Text, Alert } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebaseConfig'; // Adjust path if necessary
+import { auth } from '../firebaseConfig';
 
 const SignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -10,15 +10,13 @@ const SignupScreen = ({ navigation }) => {
   const [error, setError] = useState('');
 
   const validateEmail = (email) => {
-    // Simple email validation regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
   const handleSignup = () => {
-    setError(''); // Clear previous errors
+    setError(''); 
 
-    // Validate email
     if (!email.trim()) {
       setError('Please enter your email address.');
       return;
@@ -28,7 +26,6 @@ const SignupScreen = ({ navigation }) => {
       return;
     }
 
-    // Validate password
     if (!password.trim()) {
       setError('Please enter your password.');
       return;
@@ -38,13 +35,11 @@ const SignupScreen = ({ navigation }) => {
       return;
     }
 
-    // Confirm password
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
 
-    // Create user
     createUserWithEmailAndPassword(auth, email, password)
       .then(userCredential => {
         Alert.alert(
@@ -54,7 +49,6 @@ const SignupScreen = ({ navigation }) => {
             {
               text: 'OK',
               onPress: () => {
-                // Optionally, navigate to another screen or take other actions
                 navigation.goBack();
               },
             },
@@ -62,7 +56,6 @@ const SignupScreen = ({ navigation }) => {
         );
       })
       .catch(error => {
-        // Handle errors such as email already in use
         switch (error.code) {
           case 'auth/email-already-in-use':
             setError('This email address is already registered.');
@@ -83,14 +76,14 @@ const SignupScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.heading}>Sign Up</Text>
+        <Text style={styles.heading}>meroMovies</Text>
         <TextInput
           style={styles.input}
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
-          autoCapitalize="none" // Disable automatic capitalization
-          keyboardType="email-address" // Optional: Set the keyboard to email type
+          autoCapitalize="none" 
+          keyboardType="email-address" 
         />
         <TextInput
           style={styles.input}
@@ -98,7 +91,7 @@ const SignupScreen = ({ navigation }) => {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
-          autoCapitalize="none" // Ensure no capitalization
+          autoCapitalize="none" 
         />
         <TextInput
           style={styles.input}
@@ -106,7 +99,7 @@ const SignupScreen = ({ navigation }) => {
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
-          autoCapitalize="none" // Ensure no capitalization
+          autoCapitalize="none" 
         />
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <View style={styles.buttonContainer}>
@@ -127,7 +120,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#F5F5F5', // Light background color for better contrast
+    backgroundColor: '#F5F5F5', 
   },
   content: {
     flex: 1,

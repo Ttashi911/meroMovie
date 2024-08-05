@@ -31,10 +31,10 @@ const BottomTabNavigator = () => {
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Search" component={SearchScreen} />
-      <Tab.Screen name="Wishlist" component={WishlistScreen} />
-      <Tab.Screen name="Profile" component={LogoutScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}/>
+      <Tab.Screen name="Search" component={SearchScreen} options={{ headerShown: false }}/>
+      <Tab.Screen name="Wishlist" component={WishlistScreen} options={{ headerShown: false }}/>
+      <Tab.Screen name="Profile" component={LogoutScreen} options={{ headerShown: false }}/>
     </Tab.Navigator>
   );
 };

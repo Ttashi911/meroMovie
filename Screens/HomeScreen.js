@@ -12,7 +12,7 @@ const HomeScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const auth = getAuth();
-  const userId = auth.currentUser.uid; // Get current user ID
+  const userId = auth.currentUser.uid;
 
   const fetchMovies = async () => {
     try {
@@ -43,10 +43,10 @@ const HomeScreen = ({ navigation }) => {
     try {
       const wishlistQuery = query(collection(db, 'users', userId, 'wishlist'), where('id', '==', movieId));
       const querySnapshot = await getDocs(wishlistQuery);
-      return !querySnapshot.empty; // If not empty, the movie exists in the wishlist
+      return !querySnapshot.empty;
     } catch (error) {
       console.error('Error checking wishlist: ', error);
-      return false; // Assume the movie does not exist if there's an error
+      return false;
     }
   };
 
@@ -62,16 +62,14 @@ const HomeScreen = ({ navigation }) => {
         {
           text: 'OK',
           onPress: async () => {
-            // Check if the movie is already in the wishlist
             const movieExists = await checkIfMovieExists(movie.id);
 
             if (movieExists) {
               Alert.alert('Already in Wishlist', 'This movie is already in your wishlist.');
-              return; // Exit the function if the movie is already in the wishlist
+              return; 
             }
 
             try {
-              // Store the movie data in the wishlist
               const movieData = {
                 movieName: movie.movieName || 'No Title',
                 genre: movie.genre || 'No Genre',

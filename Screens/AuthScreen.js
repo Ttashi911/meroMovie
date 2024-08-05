@@ -13,10 +13,8 @@ const AuthScreen = ({ navigation }) => {
   };
 
   const handleLogin = () => {
-    // Clear previous errors
     setError('');
 
-    // Validate fields
     if (!email.trim()) {
       setError('Please enter your email address.');
       return;
@@ -26,7 +24,6 @@ const AuthScreen = ({ navigation }) => {
       return;
     }
 
-    // Attempt to sign in
     signInWithEmailAndPassword(auth, email, password)
       .then(userCredential => {
         navigation.navigate('Main', { screen: 'Home' });
@@ -55,7 +52,7 @@ const AuthScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.heading}>Sign In</Text>
+        <Text style={styles.heading}>meroMovies</Text>
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -91,7 +88,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#F5F5F5', // Light background color
+    backgroundColor: '#F5F5F5',
   },
   content: {
     flex: 1,

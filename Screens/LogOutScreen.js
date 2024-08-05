@@ -19,10 +19,9 @@ const LogOutScreen = ({ navigation }) => {
           onPress: async () => {
             try {
               await signOut(auth);
-              // Navigate to Auth screen or any other appropriate screen
               navigation.reset({
                 index: 0,
-                routes: [{ name: 'Auth' }], // Adjust the route name based on your navigation setup
+                routes: [{ name: 'Auth' }],
               });
             } catch (error) {
               console.error('Error signing out:', error);

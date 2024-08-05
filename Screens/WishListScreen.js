@@ -11,10 +11,9 @@ const WishlistScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const auth = getAuth();
-  const user = auth.currentUser; // Get current user
+  const user = auth.currentUser;
 
   useEffect(() => {
-    // This effect ensures that we handle user authentication status
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (!currentUser) {
         navigation.reset({
@@ -29,7 +28,6 @@ const WishlistScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (!user) {
-      // If no user is authenticated, redirect to Auth screen
       setLoading(false);
       setError('You need to be logged in to view your wishlist.');
       return;
@@ -101,37 +99,41 @@ const WishlistScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={wishlist}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.movieItem}>
-            <Image
-              source={{ uri: item.imageURL || 'https://via.placeholder.com/150' }}
-              style={styles.image}
-              resizeMode="cover"
-            />
-            <View style={styles.movieDetails}>
-              <Text style={styles.title}>{item.movieName || 'No Title'}</Text>
-              <Text style={styles.detailText}>
-                <Text style={styles.label}>Release Date: </Text>
-                {item.releaseDate || 'N/A'}
-              </Text>
-              <Text style={styles.detailText}>
-                <Text style={styles.label}>Genre: </Text>
-                {item.genre || 'No Genre'}
-              </Text>
-              <Text style={styles.detailText}>
-                <Text style={styles.label}>IMDb Rating: </Text>
-                {item.rating !== undefined ? item.rating.toFixed(1) : 'N/A'}
-              </Text>
-              <TouchableOpacity style={styles.button} onPress={() => removeFromWishlist(item.id)}>
-                <Text style={styles.buttonText}>Remove from Wishlist</Text>
-              </TouchableOpacity>
+      {wishlist.length === 0 ? (
+        <Text style={styles.emptyText}>The Wishlist is empty.</Text>
+      ) : (
+        <FlatList
+          data={wishlist}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.movieItem}>
+              <Image
+                source={{ uri: item.imageURL || 'https://via.placeholder.com/150' }}
+                style={styles.image}
+                resizeMode="cover"
+              />
+              <View style={styles.movieDetails}>
+                <Text style={styles.title}>{item.movieName || 'No Title'}</Text>
+                <Text style={styles.detailText}>
+                  <Text style={styles.label}>Release Date: </Text>
+                  {item.releaseDate || 'N/A'}
+                </Text>
+                <Text style={styles.detailText}>
+                  <Text style={styles.label}>Genre: </Text>
+                  {item.genre || 'No Genre'}
+                </Text>
+                <Text style={styles.detailText}>
+                  <Text style={styles.label}>IMDb Rating: </Text>
+                  {item.rating !== undefined ? item.rating.toFixed(1) : 'N/A'}
+                </Text>
+                <TouchableOpacity style={styles.button} onPress={() => removeFromWishlist(item.id)}>
+                  <Text style={styles.buttonText}>Remove from Wishlist</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
-      />
+          )}
+        />
+      )}
     </View>
   );
 };
@@ -151,6 +153,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'red',
     textAlign: 'center',
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#333',
+    textAlign: 'center',
+    marginTop: 20,
   },
   movieItem: {
     flexDirection: 'row',

@@ -11,8 +11,8 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Auth">
-        <Stack.Screen name="Auth" component={AuthScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Main" component={BottomTabNavigator} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
