@@ -4,7 +4,6 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
-
 const SignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,7 +13,6 @@ const SignupScreen = ({ navigation }) => {
   const [number, setPhone] = useState('');
   const [address, setAddress] = useState('');
 
-
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -22,34 +20,51 @@ const SignupScreen = ({ navigation }) => {
 
   const handleSignup = async () => {
     setError('');
-  
+
+    if (!name.trim()) {
+      setError('Please enter your full name.');
+      return;
+    }
+    
+    if (!number.trim()) {
+      setError('Please enter your phone number.');
+      return;
+    }
+
+    if (!address.trim()) {
+      setError('Please enter your address.');
+      return;
+    }
+
     if (!email.trim()) {
       setError('Please enter your email address.');
       return;
     }
+    
     if (!validateEmail(email)) {
       setError('Please enter a valid email address.');
       return;
     }
-  
+
     if (!password.trim()) {
       setError('Please enter your password.');
       return;
     }
+    
     if (password.length < 6) {
       setError('Password must be at least 6 characters long.');
       return;
     }
-  
+
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
-  
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-  
+
       // Save user data to Firestore
       const firestore = getFirestore();
       await setDoc(doc(firestore, 'users', user.uid), {
@@ -59,7 +74,7 @@ const SignupScreen = ({ navigation }) => {
         number: number,
         address: address
       });
-  
+
       Alert.alert(
         'Sign Up Successful',
         'Your account has been created successfully.',
@@ -89,7 +104,6 @@ const SignupScreen = ({ navigation }) => {
       }
     }
   };
-  
 
   return (
     <View style={styles.container}>
@@ -100,29 +114,29 @@ const SignupScreen = ({ navigation }) => {
           placeholder="Full Name"
           value={name}
           onChangeText={setName}
-          autoCapitalize="none" 
+          autoCapitalize="none"
         />
         <TextInput
           style={styles.input}
           placeholder="Phone Number"
           value={number}
           onChangeText={setPhone}
-          autoCapitalize="none" 
+          autoCapitalize="none"
         />
         <TextInput
           style={styles.input}
           placeholder="Address"
           value={address}
           onChangeText={setAddress}
-          autoCapitalize="none" 
+          autoCapitalize="none"
         />
         <TextInput
           style={styles.input}
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
-          autoCapitalize="none" 
-          keyboardType="email-address" 
+          autoCapitalize="none"
+          keyboardType="email-address"
         />
         <TextInput
           style={styles.input}
@@ -130,7 +144,7 @@ const SignupScreen = ({ navigation }) => {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
-          autoCapitalize="none" 
+          autoCapitalize="none"
         />
         <TextInput
           style={styles.input}
@@ -138,7 +152,7 @@ const SignupScreen = ({ navigation }) => {
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
-          autoCapitalize="none" 
+          autoCapitalize="none"
         />
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <View style={styles.buttonContainer}>
@@ -159,7 +173,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#F5F5F5', 
+    backgroundColor: '#F5F5F5',
   },
   content: {
     flex: 1,
