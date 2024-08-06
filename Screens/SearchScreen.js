@@ -51,6 +51,7 @@ const SearchScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.header}>meroMovies</Text>
       <Text style={styles.infoText}>
         Search for movies around the world!!!
       </Text>
@@ -124,6 +125,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#E35335',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   infoText: {
     fontSize: 16,
@@ -163,6 +172,7 @@ const styles = StyleSheet.create({
   error: {
     color: 'red',
     marginBottom: 12,
+    textAlign: 'center',
   },
   placeholderContainer: {
     flex: 1,
@@ -170,13 +180,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   placeholderImage: {
-    width: 100, // Adjust width as needed
-    height: 100, // Adjust height as needed
+    width: 100,
+    height: 100,
     marginBottom: 20,
   },
   placeholderText: {
     fontSize: 18,
     color: '#333',
+    textAlign: 'center',
   },
   movieItem: {
     flexDirection: 'row',

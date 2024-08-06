@@ -104,6 +104,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.header}>meroMovies</Text>
       <FlatList
         data={movies}
         keyExtractor={(item) => item.id}
@@ -137,7 +138,7 @@ const HomeScreen = ({ navigation }) => {
                 {item.rating !== undefined ? item.rating.toFixed(1) : 'N/A'}
               </Text>
               <TouchableOpacity style={styles.button} onPress={() => addToWishlist(item)}>
-                <MaterialIcons name="playlist-add" size={24} color="green" />
+                <MaterialIcons name="playlist-add" size={24} color="#E35335" />
                 <Text style={styles.buttonText}>Add to Wishlist</Text>
               </TouchableOpacity>
             </View>
@@ -163,6 +164,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'red',
     textAlign: 'center',
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#E35335',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   movieItem: {
     flexDirection: 'column',
@@ -211,7 +219,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    color: 'green',
+    color: '#E35335',
     marginLeft: 5,
   },
 });

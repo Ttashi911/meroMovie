@@ -99,6 +99,7 @@ const WishlistScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.header}>meroMovies</Text>
       {wishlist.length === 0 ? (
         <Text style={styles.emptyText}>The Wishlist is empty.</Text>
       ) : (
@@ -143,6 +144,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#f5f5f5',
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#E35335',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   loading: {
     flex: 1,
