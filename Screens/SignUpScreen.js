@@ -5,6 +5,7 @@ import { auth } from '../firebaseConfig';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
 const SignupScreen = ({ navigation }) => {
+   //States to store the email, password and error, confirm password.. when user enters an input it will be stored here
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -13,12 +14,15 @@ const SignupScreen = ({ navigation }) => {
   const [number, setPhone] = useState('');
   const [address, setAddress] = useState('');
 
+  //this is an utility function that check of the entered email is valid or not
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //this will return true or false according to the email validation
     return emailRegex.test(email);
   };
 
   const handleSignup = async () => {
+    //used to rese the error 
     setError('');
 
     if (!name.trim()) {
@@ -62,10 +66,12 @@ const SignupScreen = ({ navigation }) => {
     }
 
     try {
+      //the signup function provided by firebase to signup new user using email and password
+      //and if success it provides userCredential object
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Save user data to Firestore
+      // Save user data to Firestore in key value pair
       const firestore = getFirestore();
       await setDoc(doc(firestore, 'users', user.uid), {
         email: user.email,
@@ -75,6 +81,7 @@ const SignupScreen = ({ navigation }) => {
         address: address
       });
 
+      //displaying an alert to show signup successfull
       Alert.alert(
         'Sign Up Successful',
         'Your account has been created successfully.',

@@ -4,26 +4,34 @@ import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const AuthScreen = ({ navigation }) => {
+  //States to store the email, password and error when user enters an input it will be stored here
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  //it is an array function which handles navigation to signup
   const handleSignup = () => {
     navigation.navigate('Signup');
   };
 
-  const handleLogin = () => {
+  //function to handle the user login using email and password
+  const handleLogin = () => {`1`
+    //reset the error message
     setError('');
 
-    if (!email.trim()) {
+    //check if there is any empty space in the email or the email is empty or nto
+    if (!email.trim()) {  
       setError('Please enter your email address.');
       return;
     }
+
     if (!password.trim()) {
       setError('Please enter your password.');
       return;
     }
 
+    //this is the function provided by firebase if email and password is correct
+    //user is navigated to home page else error will show
     signInWithEmailAndPassword(auth, email, password)
       .then(userCredential => {
         navigation.navigate('Main', { screen: 'Home' });
